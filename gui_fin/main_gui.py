@@ -49,7 +49,6 @@ class MainWindow(QMainWindow):
         self.enter_layout = QWidget()
         self.enter_layout.setLayout(enter_layout)
 
-
         self.accountUserNameCreate = QLineEdit()
         self.accountUserNameCreate.setPlaceholderText('Логин')
         self.accountUserPasswordCreate = QLineEdit()
