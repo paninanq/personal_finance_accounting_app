@@ -11,3 +11,8 @@ class PriceLessZero(Exception):
 class BalanceLessZero(Exception):
     def __init__(self):
         super().__init__("Insufficient funds")
+
+
+class SummLessZero(Exception):
+    def __init__(self):
+        super().__init__("Summ should be less than zero")
