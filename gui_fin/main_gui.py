@@ -7,7 +7,7 @@ from database.controllers.operation_controller import OperationController
 from database.controllers.purchase_controller import PurchasesController
 from finances.accounting import Operation, Purchase
 from datetime import datetime, date
-from exceptions.community_exceptions import DateRefillError, PriceLessZero, BalanceLessZero
+from exceptions.community_exceptions import PriceLessZero, BalanceLessZero, SummLessZero
 from exceptions.db_exceptions import EmptyFieldError, LongFieldError
 
 
@@ -48,7 +48,6 @@ class MainWindow(QMainWindow):
         enter_layout.addWidget(self.gbox)
         self.enter_layout = QWidget()
         self.enter_layout.setLayout(enter_layout)
-
 
         self.accountUserNameCreate = QLineEdit()
         self.accountUserNameCreate.setPlaceholderText('Логин')
@@ -208,6 +207,7 @@ class MainWindow(QMainWindow):
         self.date_of_purch.setText('0'*(2-len(str(date.today().day)))+str(date.today().day) + '.' +
                                    '0'*(2-len(str(date.today().month)))+str(date.today().month) + '.'
                                    + str(date.today().year))
+        self.date_of_purch.setReadOnly(True)
         v_box_date = QVBoxLayout()
         self.calendar = QCalendarWidget()
         self.edit_date_Button = QPushButton("Изменить дату")
@@ -361,7 +361,7 @@ class MainWindow(QMainWindow):
         self.purchases_layout.show()
 
     def add_money(self):
-        if str(datetime.now())[8:8+2] == '11':
+        if str(datetime.now())[8:8+2] == '01':
             self.wallet_layout.hide()
             self.re_balance_layout.show()
             self.setGeometry(860, 200, 600, 200)
@@ -371,14 +371,29 @@ class MainWindow(QMainWindow):
             er.showMessage(text)
 
     def update_summ(self):
-        summ = float(self.summ_Edit.text())
-        wc = WalletController()
-        bef_upd = wc.wallet_select_balance(self.profileLineEdit.text())
-        wc.wallet_balance_update(self.profileLineEdit.text(), bef_upd+summ)
-        operation = Operation(summ=summ, type="Пополнение")
-        oc = OperationController()
-        oc.operation_insert(self.profileLineEdit.text(), operation)
-        self.update_summ_to_wallet()
+        try:
+            summ = float(self.summ_Edit.text())
+            if summ<=0:
+                raise SummLessZero
+            wc = WalletController()
+            bef_upd = wc.wallet_select_balance(self.profileLineEdit.text())
+            wc.wallet_balance_update(self.profileLineEdit.text(), bef_upd+summ)
+            operation = Operation(summ=summ, type="Пополнение")
+            oc = OperationController()
+            oc.operation_insert(self.profileLineEdit.text(), operation)
+            self.update_summ_to_wallet()
+        except ValueError:
+            warn = 'В поле "Пополнить" можно вводить только вещественные числа большие нуля'
+            error = QErrorMessage(self)
+            error.showMessage(warn)
+        except BalanceLessZero:
+            warn = 'Баланс не может быть меньше нуля'
+            error = QErrorMessage(self)
+            error.showMessage(warn)
+        except SummLessZero:
+            warn = 'Сумма пополнения должна быть больлше нуля'
+            error = QErrorMessage(self)
+            error.showMessage(warn)
 
     def update_summ_to_wallet(self):
         self.summ_Edit.clear()
