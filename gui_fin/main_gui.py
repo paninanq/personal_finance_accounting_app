@@ -7,7 +7,7 @@ from database.controllers.operation_controller import OperationController
 from database.controllers.purchase_controller import PurchasesController
 from finances.accounting import Operation, Purchase
 from datetime import datetime, date
-from exceptions.community_exceptions import PriceLessZero, BalanceLessZero, SummLessZero
+from exceptions.community_exceptions import DateError, PriceLessZero, BalanceLessZero, SummLessZero
 from exceptions.db_exceptions import EmptyFieldError, LongFieldError
 
 
@@ -415,6 +415,8 @@ class MainWindow(QMainWindow):
             month_of_purchase = int(self.date_of_purch.text()[3:5])
             year_of_purchase = int(self.date_of_purch.text()[6:])
             date_of_purchase = date(year_of_purchase, month_of_purchase, day_of_purchase)
+            if date_of_purchase>date.today():
+                raise DateError
             date_time_of_purchase = datetime(year_of_purchase, month_of_purchase, day_of_purchase,
                                              0, 0, 0)
             price_of_purchase = float(self.price_purchase_Edit.text())
@@ -450,6 +452,10 @@ class MainWindow(QMainWindow):
             error.showMessage(warn)
         except BalanceLessZero:
             self.insufficient_funds()
+        except DateError:
+            warn = 'Дата покупки не может быть позже сегодняшней даты'
+            error = QErrorMessage(self)
+            error.showMessage(warn)
 
     def insufficient_funds(self):
         self.add_purchase_layout.hide()
