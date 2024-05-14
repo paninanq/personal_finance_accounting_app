@@ -125,6 +125,7 @@ class MainWindow(QMainWindow):
         self.operations_table.setColumnWidth(0, 150)
         self.operations_table.setColumnWidth(1, 250)
         self.operations_table.setColumnWidth(2, 350)
+        self.operations_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         balance_layout.addWidget(self.balance_label)
         balance_layout.addWidget(self.balance_cur)
         self.balance_layout = QWidget()
@@ -193,6 +194,7 @@ class MainWindow(QMainWindow):
         self.my_purchases_table.setColumnWidth(2, 150)
         self.my_purchases_table.setColumnWidth(3, 150)
         self.my_purchases_table.setColumnWidth(4, 150)
+        self.my_purchases_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
 
         purchases_layout.addWidget(self.filter_purchases)
         purchases_layout.addWidget(self.work_filter_button)
@@ -249,7 +251,7 @@ class MainWindow(QMainWindow):
         self.warningLabel.setStyleSheet("color: rgb(128, 0, 0)")
         self.cancel_purchase_but = QPushButton("Отменить покупку")
         self.cancel_purchase_but.clicked.connect(self.cancel_purchase)
-        self.continue_purchase_but = QPushButton("Сохранить покупку в списке покупок без списание средств")
+        self.continue_purchase_but = QPushButton("Сохранить покупку в списке покупок без списания средств")
         self.continue_purchase_but.clicked.connect(self.continue_purchase)
         insufficient_funds_mlayout.addWidget(self.warningLabel)
         insufficient_funds_layout = QHBoxLayout()
@@ -415,7 +417,7 @@ class MainWindow(QMainWindow):
             month_of_purchase = int(self.date_of_purch.text()[3:5])
             year_of_purchase = int(self.date_of_purch.text()[6:])
             date_of_purchase = date(year_of_purchase, month_of_purchase, day_of_purchase)
-            if date_of_purchase>date.today():
+            if date_of_purchase > date.today() or year_of_purchase<2000:
                 raise DateError
             date_time_of_purchase = datetime(year_of_purchase, month_of_purchase, day_of_purchase,
                                              0, 0, 0)
